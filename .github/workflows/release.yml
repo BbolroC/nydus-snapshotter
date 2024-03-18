@@ -171,7 +171,9 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       - name: Publish manifest for multi-arch image
         run: |
-          docker manifest create ${{ steps.meta.outputs.tags }} \
-          --amend ${{ steps.meta.outputs.tags }}-amd64 --amend ${{ steps.meta.outputs.tags }}-arm64 \
-          --amend ${{ steps.meta.outputs.tags }}-s390x --amend ${{ steps.meta.outputs.tags }}-ppc64le
-          docker manifest push ${{ steps.meta.outputs.tags }}
+          for tag in $(echo "${{ steps.meta.outputs.tags }}" | tr ' ' '\n'); do
+            docker manifest create "${tag}" \
+            --amend "${tag}-amd64" --amend "${tag}-arm64" \
+            --amend "${tag}-s390x" --amend "${tag}-ppc64le"
+            docker manifest push "${tag}"
+          done
